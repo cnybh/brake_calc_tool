@@ -11,7 +11,7 @@ A tool for calculating braking performance of rail transit trains
 
 ------
 
-![image](https://github.com/cnybh/brake_calc_tool/blob/main/view.png?raw=true)
+![image](https://github.com/cnybh/brake_calc_tool/blob/main/view.jpg?raw=true)
 
 ------
 
