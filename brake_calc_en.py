@@ -1,6 +1,6 @@
 # -------------------------------------------------------------
 # CRRC Puzhen Alstom Transportation Systems Limited
-# PATSMET Yang Bohang 2026.07 pre-release
+# PATSMET Yang Bohang 2026.07 pre-release 0.9a
 # -------------------------------------------------------------
 import time
 import sys
