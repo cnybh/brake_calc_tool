@@ -12,6 +12,7 @@ import shutil
 import struct
 import subprocess
 import tempfile
+import webbrowser
 from pathlib import Path
 
 # ---------- Console output encoding (Windows) ----------
@@ -170,8 +171,8 @@ MSGS = {
         "config_lbl_language": "Language:",
         "config_lbl_speed": "Speed Signal:",
         "config_lbl_brake": "Brake Signal:",
-        "config_lbl_min": "Min Decel (m/s\²):",
-        "config_lbl_max": "Max Decel (m/s\²):",
+        "config_lbl_min": "Min Decel (m/s²):",
+        "config_lbl_max": "Max Decel (m/s²):",
         "config_lbl_enable_min": "Enable Min Limit:",
         "config_lbl_enable_max": "Enable Max Limit:",
         "config_lbl_metric": "Evaluation Metric:",
@@ -2002,6 +2003,50 @@ MSGS = {
         "no_file_selected": "Tidak ada file yang dipilih.",    },
 }
 
+# About dialog content is kept separate from the general message table so the
+# release-page label can be rendered as a clickable link in every language.
+ABOUT_TEXTS = {
+    "en": ("Version: v1.0 Official Release", "Author: bohangyang", "Update:", "Software Release Page", "Please save the project configuration before updating the software to prevent data loss."),
+    "zh": ("版本：v1.0 正式版", "作者：bohangyang", "更新：", "软件发布页", "更新软件前请留存项目配置信息以防丢失。"),
+    "ms": ("Versi: v1.0 Edisi Rasmi", "Pengarang: bohangyang", "Kemas kini:", "Halaman Pelancaran Perisian", "Sila simpan konfigurasi projek sebelum mengemas kini perisian untuk mengelakkan kehilangan data."),
+    "ja": ("バージョン：v1.0 正式版", "作者：bohangyang", "更新：", "ソフトウェア公開ページ", "ソフトウェアを更新する前に、紛失を防ぐためプロジェクト設定を保存してください。"),
+    "fr": ("Version : v1.0 Edition officielle", "Auteur : bohangyang", "Mise à jour :", "Page de publication du logiciel", "Avant de mettre à jour le logiciel, sauvegardez la configuration du projet pour éviter toute perte."),
+    "de": ("Version: v1.0 Offizielle Version", "Autor: bohangyang", "Update:", "Software-Veröffentlichungsseite", "Bitte sichern Sie vor dem Update die Projektkonfiguration, um Datenverlust zu vermeiden."),
+    "es": ("Versión: v1.0 Edición oficial", "Autor: bohangyang", "Actualización:", "Página de publicación del software", "Guarde la configuración del proyecto antes de actualizar el software para evitar pérdidas."),
+    "ru": ("Версия: v1.0 Официальный выпуск", "Автор: bohangyang", "Обновление:", "Страница публикации программы", "Перед обновлением сохраните конфигурацию проекта, чтобы избежать потери данных."),
+    "pt": ("Versão: v1.0 Edição oficial", "Autor: bohangyang", "Atualização:", "Página de lançamento do software", "Antes de atualizar o software, guarde a configuração do projeto para evitar perdas."),
+    "ar": ("الإصدار: v1.0 الإصدار الرسمي", "المؤلف: bohangyang", "التحديث:", "صفحة إصدار البرنامج", "يرجى حفظ إعدادات المشروع قبل تحديث البرنامج لتجنب فقدان البيانات."),
+    "zh_tw": ("版本：v1.0 正式版", "作者：bohangyang", "更新：", "軟體發布頁", "更新軟體前請留存專案設定資訊以防遺失。"),
+    "ko": ("버전: v1.0 정식 버전", "작성자: bohangyang", "업데이트:", "소프트웨어 배포 페이지", "소프트웨어를 업데이트하기 전에 손실을 방지하기 위해 프로젝트 설정을 저장하세요."),
+    "th": ("เวอร์ชัน: v1.0 รุ่นอย่างเป็นทางการ", "ผู้เขียน: bohangyang", "อัปเดต:", "หน้าดาวน์โหลดซอฟต์แวร์", "โปรดบันทึกการกำหนดค่าโครงการก่อนอัปเดตซอฟต์แวร์เพื่อป้องกันข้อมูลสูญหาย"),
+    "it": ("Versione: v1.0 Edizione ufficiale", "Autore: bohangyang", "Aggiornamento:", "Pagina di pubblicazione del software", "Salvare la configurazione del progetto prima di aggiornare il software per evitare perdite."),
+    "vi": ("Phiên bản: v1.0 Bản chính thức", "Tác giả: bohangyang", "Cập nhật:", "Trang phát hành phần mềm", "Vui lòng lưu cấu hình dự án trước khi cập nhật phần mềm để tránh mất dữ liệu."),
+    "id": ("Versi: v1.0 Edisi Resmi", "Penulis: bohangyang", "Pembaruan:", "Halaman Rilis Perangkat Lunak", "Simpan konfigurasi proyek sebelum memperbarui perangkat lunak untuk mencegah kehilangan data."),
+    "hi": ("संस्करण: v1.0 आधिकारिक संस्करण", "लेखक: bohangyang", "अपडेट:", "सॉफ्टवेयर रिलीज़ पृष्ठ", "डेटा खोने से बचने के लिए सॉफ्टवेयर अपडेट करने से पहले प्रोजेक्ट कॉन्फ़िगरेशन सहेजें।"),
+}
+
+RELEASE_URL = "https://github.com/cnybh/brake_calc_tool"
+
+START_TITLES = {
+    "en": "Direct Start",
+    "zh": "直接启动",
+    "ms": "Mula Terus",
+    "ja": "直接起動",
+    "fr": "Démarrage direct",
+    "de": "Direktstart",
+    "es": "Inicio directo",
+    "ru": "Прямой запуск",
+    "pt": "Início direto",
+    "ar": "بدء التشغيل المباشر",
+    "zh_tw": "直接啟動",
+    "ko": "바로 시작",
+    "th": "เริ่มต้นโดยตรง",
+    "it": "Avvio diretto",
+    "vi": "Khởi động trực tiếp",
+    "id": "Mulai Langsung",
+    "hi": "सीधा प्रारंभ",
+}
+
 # ------------------ Language resolution ------------------
 def resolve_language(cfg_lang):
     """Return language code from a config language value (case-insensitive)."""
@@ -2950,6 +2995,86 @@ def _pause_exit(lang, title=None, message=None):
         pass
 
 
+def show_about(lang):
+    """Show localized release information with a clickable release-page link."""
+    if not _TK_AVAILABLE:
+        return
+
+    T = MSGS.get(lang, MSGS["en"])
+    version_text, author_text, update_text, release_text, update_note = ABOUT_TEXTS.get(
+        lang, ABOUT_TEXTS["en"]
+    )
+    rtl = is_rtl(lang)
+    dialog = tk.Toplevel(_get_root())
+    _set_app_icon(dialog)
+    dialog.title(T["menu_opt3"])
+    dialog.resizable(False, False)
+    if sys.platform == "win32":
+        try:
+            dialog.attributes("-toolwindow", True)
+        except tk.TclError:
+            # Some bundled Tk builds do not expose the Windows toolwindow flag.
+            pass
+    dialog.configure(bg="#FFFFFF")
+
+    content = tk.Frame(dialog, bg="#FFFFFF", padx=24, pady=18)
+    content.pack(fill="both", expand=True)
+    anchor = "e" if rtl else "w"
+    label_style = {
+        "font": _ui_font(lang, 11),
+        "bg": "#FFFFFF",
+        "fg": "#1F2937",
+        "anchor": anchor,
+    }
+    tk.Label(content, text=version_text, **label_style).pack(fill="x", pady=2)
+    tk.Label(content, text=author_text, **label_style).pack(fill="x", pady=2)
+
+    update_row = tk.Frame(content, bg="#FFFFFF")
+    update_row.pack(fill="x", pady=2)
+    tk.Label(update_row, text=update_text, **label_style).pack(side="right" if rtl else "left")
+    try:
+        link_font = tkfont.Font(root=dialog, font=_ui_font(lang, 11, True))
+        link_font.configure(underline=True)
+    except tk.TclError:
+        # Keep the link usable if the bundled Tk font implementation differs.
+        link_font = _ui_font(lang, 11, True)
+    link = tk.Label(
+        update_row,
+        text=release_text,
+        font=link_font,
+        bg="#FFFFFF",
+        fg="#1565C0",
+        cursor="hand2",
+        underline=True,
+    )
+    link.pack(side="right" if rtl else "left", padx=(6, 0) if not rtl else (0, 6))
+    link.bind("<Button-1>", lambda _event: webbrowser.open(RELEASE_URL))
+
+    tk.Label(content, text=update_note, font=_ui_font(lang, 9),
+             bg="#FFFFFF", fg="#6B7280", anchor=anchor,
+             justify="left" if not rtl else "right", wraplength=560).pack(
+                 fill="x", pady=(8, 0))
+
+    tk.Button(content, text=T.get("config_btn_cancel", "Close"),
+              command=dialog.destroy, cursor="hand2",
+              font=_ui_font(lang, 10)).pack(pady=(14, 0))
+    dialog.transient(_get_root())
+    # Explicit geometry and deferred focus avoid a Windows Tk focus deadlock
+    # when this dialog is opened from the menu's wait_window loop.
+    dialog.update_idletasks()
+    width = dialog.winfo_reqwidth()
+    height = dialog.winfo_reqheight()
+    screen_width = dialog.winfo_screenwidth()
+    screen_height = dialog.winfo_screenheight()
+    width = max(width, 560)
+    dialog.geometry(
+        f"{width}x{height}+{max(0, (screen_width - width) // 2)}+"
+        f"{max(0, (screen_height - height) // 2)}"
+    )
+    dialog.deiconify()
+    dialog.after(50, lambda: _bring_to_front(dialog))
+
+
 def show_start_menu(lang):
     """Show the main menu as a GUI window with three buttons.
 
@@ -2967,8 +3092,13 @@ def show_start_menu(lang):
 
     root = tk.Toplevel(_get_root())
     _set_app_icon(root)
-    root.title(T["menu_title"])
+    root.title(START_TITLES.get(lang, START_TITLES["en"]))
     root.resizable(False, False)
+    if sys.platform == "win32":
+        try:
+            root.attributes("-toolwindow", True)
+        except tk.TclError:
+            pass
     root.configure(bg="#F0F2F5")
 
     header = tk.Frame(root, bg="#F0F2F5")
@@ -2991,7 +3121,7 @@ def show_start_menu(lang):
     btn_config.pack(pady=10, padx=20)
 
     btn_about = tk.Button(content, text=T["menu_opt3"], **btn_style,
-                          command=lambda: messagebox.showinfo(T["menu_opt3"], T.get("menu_about", T["menu_opt3"])))
+                          command=lambda: show_about(lang))
     btn_about.pack(pady=(10, 22), padx=20)
 
     def set_action(action):
